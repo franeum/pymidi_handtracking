@@ -20,6 +20,7 @@ def get_finger(hand_landmarks):
     indexZ = min(0, indexZ)
     return [1 - indexX, indexY, abs(indexZ)]
 
+
 # For webcam input:
 cap = cv2.VideoCapture(0)
 with mp_hands.Hands(
@@ -42,23 +43,22 @@ with mp_hands.Hands(
         image.flags.writeable = True
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
-        res_hands = results.multi_handedness  
-        
-        if res_hands:
-            
-            for n, hand in enumerate(res_hands): 
-                hand_kind = hand.ListFields()[0][1][0]
-                
-                landmark = results.multi_hand_landmarks[n]
-                if hand_kind.label == 'Left':
-                    CLIENT.send_message("/left", get_finger(landmark))
-                    #print("LEFT")
-                elif hand_kind.label == 'Right':
-                    CLIENT.send_message("/right", get_finger(landmark))
-                    #print("RIGHT")           
-                
+        res_hands = results.multi_handedness
 
-            #print(len(results.multi_hand_landmarks))
+        if res_hands:
+
+            for n, hand in enumerate(res_hands):
+                hand_kind = hand.ListFields()[0][1][0]
+
+                landmark = results.multi_hand_landmarks[n]
+                if hand_kind.label == "Left":
+                    CLIENT.send_message("/left", get_finger(landmark))
+                    # print("LEFT")
+                elif hand_kind.label == "Right":
+                    CLIENT.send_message("/right", get_finger(landmark))
+                    # print("RIGHT")
+
+            # print(len(results.multi_hand_landmarks))
         # Flip the image horizontally for a selfie-view display.
         cv2.imshow("MediaPipe Hands", cv2.flip(image, 1))
         if cv2.waitKey(20) & 0xFF == 27:
