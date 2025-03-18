@@ -13,10 +13,17 @@ mp_drawing_styles = mp.solutions.drawing_styles
 mp_hands = mp.solutions.hands
 
 
+def get_finger(hand_landmarks):
+    indexFinger = hand_landmarks.ListFields()[0][1][8]
+    indexX, indexY, indexZ = indexFinger.x, indexFinger.y, indexFinger.z
+    indexZ = max(-0.5, indexZ)
+    indexZ = min(0, indexZ)
+    return [1 - indexX, indexY, abs(indexZ)]
+
 # For webcam input:
 cap = cv2.VideoCapture(0)
 with mp_hands.Hands(
-    model_complexity=0, min_detection_confidence=0.5, min_tracking_confidence=0.5
+    model_complexity=0, min_detection_confidence=0.75, min_tracking_confidence=0.75
 ) as hands:
     while cap.isOpened():
         success, image = cap.read()
@@ -34,15 +41,26 @@ with mp_hands.Hands(
         # Draw the hand annotations on the image.
         image.flags.writeable = True
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-        if results.multi_hand_landmarks:
-            for hand_landmarks in results.multi_hand_landmarks:
-                indexFinger = hand_landmarks.ListFields()[0][1][8]
-                indexX, indexY, indexZ = indexFinger.x, indexFinger.y, indexFinger.z
-                indexZ = max(-0.5, indexZ)
-                indexZ = min(0, indexZ)
-                CLIENT.send_message("/test", [1 - indexX, indexY, abs(indexZ)])
+
+        res_hands = results.multi_handedness  
+        
+        if res_hands:
+            
+            for n, hand in enumerate(res_hands): 
+                hand_kind = hand.ListFields()[0][1][0]
+                
+                landmark = results.multi_hand_landmarks[n]
+                if hand_kind.label == 'Left':
+                    CLIENT.send_message("/left", get_finger(landmark))
+                    #print("LEFT")
+                elif hand_kind.label == 'Right':
+                    CLIENT.send_message("/right", get_finger(landmark))
+                    #print("RIGHT")           
+                
+
+            #print(len(results.multi_hand_landmarks))
         # Flip the image horizontally for a selfie-view display.
-        # cv2.imshow("MediaPipe Hands", cv2.flip(image, 1))
-        if cv2.waitKey(5) & 0xFF == 27:
+        cv2.imshow("MediaPipe Hands", cv2.flip(image, 1))
+        if cv2.waitKey(20) & 0xFF == 27:
             break
 cap.release()
