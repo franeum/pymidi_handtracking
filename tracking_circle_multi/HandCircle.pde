@@ -1,5 +1,5 @@
 float alpha = 0.25;
-float easing = 0.1;
+float easing = 0.02;
 
 class HandCircle {
   float startX, startY;
