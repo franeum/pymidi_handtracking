@@ -3,10 +3,16 @@
 import cv2
 import mediapipe as mp
 from pythonosc.udp_client import SimpleUDPClient
+import socket
+
 
 IP = "127.0.0.1"
-PORT = 12000
-CLIENT = SimpleUDPClient(IP, PORT)
+PROCESSING_PORT = 12000
+AUDIO_PORT = 15000
+
+
+PROCESSING_CLIENT = SimpleUDPClient(IP, PROCESSING_PORT)
+AUDIO_CLIENT = SimpleUDPClient(IP, AUDIO_PORT)
 
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
@@ -52,11 +58,13 @@ with mp_hands.Hands(
 
                 landmark = results.multi_hand_landmarks[n]
                 if hand_kind.label == "Left":
-                    CLIENT.send_message("/left", get_finger(landmark))
-                    # print("LEFT")
+                    PROCESSING_CLIENT.send_message("/left", get_finger(landmark))
+                    AUDIO_CLIENT.send_message("/left", get_finger(landmark))
+                    print("LEFT")
                 elif hand_kind.label == "Right":
-                    CLIENT.send_message("/right", get_finger(landmark))
-                    # print("RIGHT")
+                    PROCESSING_CLIENT.send_message("/right", get_finger(landmark))
+                    AUDIO_CLIENT.send_message("/right", get_finger(landmark))
+                    print("RIGHT")
 
             # print(len(results.multi_hand_landmarks))
         # Flip the image horizontally for a selfie-view display.
