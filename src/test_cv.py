@@ -58,17 +58,17 @@ with mp_hands.Hands(
 
                 landmark = results.multi_hand_landmarks[n]
                 if hand_kind.label == "Left":
-                    PROCESSING_CLIENT.send_message("/left", get_finger(landmark))
-                    AUDIO_CLIENT.send_message("/left", get_finger(landmark))
+                    # PROCESSING_CLIENT.send_message("/left", get_finger(landmark))
+                    # AUDIO_CLIENT.send_message("/left", get_finger(landmark))
                     print("LEFT")
                 elif hand_kind.label == "Right":
-                    PROCESSING_CLIENT.send_message("/right", get_finger(landmark))
-                    AUDIO_CLIENT.send_message("/right", get_finger(landmark))
+                    # PROCESSING_CLIENT.send_message("/right", get_finger(landmark))
+                    # AUDIO_CLIENT.send_message("/right", get_finger(landmark))
                     print("RIGHT")
 
             # print(len(results.multi_hand_landmarks))
         # Flip the image horizontally for a selfie-view display.
         cv2.imshow("MediaPipe Hands", cv2.flip(image, 1))
-        if cv2.waitKey(20) & 0xFF == 27:
+        if cv2.waitKey(5) & 0xFF == 27:
             break
 cap.release()
